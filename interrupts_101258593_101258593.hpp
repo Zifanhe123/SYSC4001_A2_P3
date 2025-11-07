@@ -1,32 +1,31 @@
 #pragma once
-#pragma once
 #include <string>
 #include <vector>
 
-// Memory partition
+// Fixed memory partitions entry
 struct Partition {
-    unsigned int number;
-    unsigned int sizeMB;
-    std::string code; // "free", "init", or program name
+    unsigned number;       // 1..6
+    unsigned sizeMB;       // 40,25,15,10,8,2
+    std::string code;      // "free", "init", or program name
 };
 
-// Process control block
+// Minimal PCB for this simulator
 struct PCB {
-    int pid;
-    std::string programName;
-    unsigned int partition;
-    unsigned int sizeMB;
-    std::string state; // "running" or "waiting"
+    int pid;                       // 0 = init
+    std::string programName;       // "init" or program name
+    int partition;                 // 1..6
+    unsigned sizeMB;               // program memory size in MB
+    std::string state;             // "running" or "waiting"
 };
 
-// External files (simulated disk)
-struct ExternalFile {
-    std::string name;
-    unsigned int sizeMB;
+// Trace step parsed from trace.txt
+struct Step {
+    std::string op;                // CPU, SYSCALL, END_IO, FORK, EXEC, IF_CHILD, IF_PARENT, ENDIF
+    std::vector<std::string> args; // tokens after comma
+    int num;                       // numeric argument at end (duration or device)
+    std::string raw;               // original line
 };
 
-// Function declarations
+// Interface (implemented in .cpp)
 void initializeSystem();
-void simulateFork(int duration);
-void simulateExec(const std::string& program, int duration);
-void logSystemStatus(const std::string& trace, int time);
+void runTrace(const std::vector<Step>& tr);
